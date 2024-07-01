@@ -1,14 +1,13 @@
 
 
-" Do not save backup files.
-set nobackup
+" make sure we are on viM, not vi
+set nocompatible
 
 " Disable --More-- prompt
 set nomore
 
 " While searching though a file incrementally highlight matching characters as you type.
 set incsearch
-
 
 " Show matching words during a search.
 set showmatch
@@ -25,40 +24,45 @@ set wildmenu
 " Make wildmenu behave like similar to Bash completion.
 set wildmode=list:longest
 
-set backspace=indent,eol,start  " more powerful backspacing
+set mouse=a " enable mouse support, even on terminal
 
 "***************************************************************
 "" Editting Settings
 "***************************************************************
 
-" make sure we are on viM, not vi
-set nocompatible
+set backspace=indent,eol,start  " more powerful backspacing
 
+set whichwrap+=[,]  " left/right arrows wrap lines when in insert mode
+
+set keymodel=startsel,stopsel " shift+arrow selection
 
 "***************************************************************
-"" File loading
+"" File loading / saving
 "***************************************************************
-
 
 " Automatically start new buffers on INSERT mode
 autocmd BufRead,BufNewFile * start
 
-
 " Autoload plugins on demand when files open
 filetype plugin on
-
 
 " default to UTF-8 with Unix newlines for new files
 set fileformat=unix
 set fileencoding=utf-8
 
-
 " There are certain files that we would never want to edit with Vim.
 " Wildmenu will ignore files with these extensions.
 set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx
 
+" Look for 'modeline' vim commands in the first lines of a file
+set modeline
+set modelines=10
 
+" Do not save backup files.
+set nobackup
 
+" Abandoning a buffer (eg. opening a different file) will hide it, instead of closing it
+set hidden
 
 "***************************************************************
 "" Visual Settings
@@ -68,92 +72,109 @@ syntax on
 set ruler
 set number
 
-" Highlight cursor line underneath the cursor horizontally.
+" Highlight cursor line, color changes on Insert mode
 set cursorline
-"highlight CursorLine ctermfg=White ctermbg=Yellow cterm=bold guifg=white guibg=yellow gui=bold
-highlight CursorLine ctermbg=black guibg=#282825
+autocmd InsertEnter  * highlight CursorLine   ctermbg=black guibg=#082830
+autocmd InsertEnter  * highlight CursorLineNR ctermbg=black guibg=#207878
+autocmd InsertLeave  * highlight CursorLine   ctermbg=black guibg=#283028
+autocmd InsertLeave  * highlight CursorLineNR ctermbg=black guibg=#585858
 
+" Highlight trailing whitespaces; eg:                          
+highlight ExtraWhitespace ctermbg=darkgrey guibg=#282828
+match ExtraWhitespace /\s\+$/
 
-"" Use modeline overrides
-set modeline
-set modelines=10
 
 " open menu on F4
 if !has("gui_running")
-  :source $VIMRUNTIME/menu.vim 
-  :set wildmenu                        
+  :source $VIMRUNTIME/menu.vim
+  :set wildmenu
   :set cpoptions-=<
   :set wildcharm=<C-Z>
   :map <F4> :emenu <C-Z>
 endif
 
+" when on a suported terminal (lax...), aproximate to full color
+if (&term =~ "256color" || &term == 'win32')
+  set termguicolors
+endif
+
+
 ""------------
 "" Status Bar
 set laststatus=2
-hi NRMColor guifg=Black guibg=Green ctermbg=46 ctermfg=0
-hi INSColor guifg=Black guibg=Cyan ctermbg=51 ctermfg=0
-hi RPLColor guifg=Black guibg=maroon1 ctermbg=165 ctermfg=0
-hi VISColor guifg=Black guibg=Orange ctermbg=202 ctermfg=0
+hi NRMColor     guifg=Black   guibg=Gray    ctermbg=46 ctermfg=0
+hi INSColor     guifg=Black   guibg=Cyan    ctermbg=51 ctermfg=0
+hi RPLColor     guifg=Black   guibg=maroon1 ctermbg=165 ctermfg=0
+hi VISColor     guifg=Black   guibg=Orange  ctermbg=202 ctermfg=0
+hi StatusLine   guifg=#f0f0f0 guibg=#406070
+hi StatusLineNC guifg=#b0b0b0 guibg=#404040
 
-set statusline =%#NRMColor#%{(mode()=='n')?'\ \ NRM\ ':''}
-set statusline+=%#INSColor#%{(mode()=='i')?'\ \ INS\ ':''}
-set statusline+=%#RPLColor#%{(mode()=='R')?'\ \ RPL\ ':''}
-set statusline+=%#VISColor#%{(mode()=='v')?'\ \ VIS\ ':''}
+set statusline =\ 
+set statusline+=%#NRMColor#%{(mode()=='n')?'\ NRM\ ':''}
+set statusline+=%#INSColor#%{(mode()=='i')?'\ INS\ ':''}
+set statusline+=%#RPLColor#%{(mode()=='R')?'\ RPL\ ':''}
+set statusline+=%#VISColor#%{(mode()=='v')?'\ VIS\ ':''}
+set statusline+=%#VISColor#%{(mode()=='vl')?'\ VLN\ ':''}
+set statusline+=%#VISColor#%{(mode()=='vb')?'\ VBL\ ':''}
+set statusline+=%#VISColor#%{(mode()=='f')?'\ FND\ ':''}
+set statusline+=%##%{(mode()=='c')?'\ ...\ ':''}
 
-set statusline +=%1*\ %n\ %*            "buffer number
-set statusline +=%4*\ %<%f%*            "filename
-set statusline +=%2*%m%*                "modified flag
-set statusline +=%1*%=*                 "spacer
-set statusline +=%5*%{&ff}%*            "file format
-set statusline +=%3*%y%*                "file type
-set statusline +=%1*%5l%*               "current line
-set statusline +=%2*/%L%*               "total lines
-set statusline +=%1*%4v\ %*             "virtual column number
-set statusline +=%2*0x%04B\ %*          "character under cursor
+set statusline +=%##\ %n\ %*            "buffer number
+set statusline +=%<%f             "filename
+set statusline +=\ %m%*                "modified flag
+set statusline +=%=                 "spacer
+set statusline +=%{&ff}%*            "file format
+set statusline +=%y%*                "file type
+set statusline +=%5l%*               "current line
+set statusline +=/%L%*               "total lines
+set statusline +=%4v\ %*             "virtual column number
+set statusline +=0x%04B\ %*          "character under cursor
 
+set statusline +=%#NRMColor#
 
-set showmode! "don't show mode on bottom line, already on to status line
+set showmode! "don't show mode on bottom line, already on status line
 
-
-"
 
 "***************************************************************
-"" Key Mappins
+"" Key Mappings
 "***************************************************************
 
 " Cut-Copy-Paste
 noremap <C-x> "*d
 noremap <C-c> "*y
 noremap <C-v> "*p
+noremap <C-u> u
 inoremap <C-x> <C-o>"*yx
 inoremap <C-c> <C-o>"*y
 inoremap <C-v> <C-o>"*p
-
+inoremap <C-u> <C-o>u
 
 
 " Emacs-like chords
-noremap <C-x><C-f> <Esc>:e ./
-noremap <C-x><C-f> <Esc>:e ./
-noremap <C-x><C-s> <Esc>:w<CR>
-inoremap <C-x><C-s> <Esc>:w<CR>a
-noremap <C-x><C-c> <Esc>:confirm q<CR>
-inoremap <C-x><C-c> <Esc>:confirm q<CR>a
+noremap <C-x><C-f> :e ./
+inoremap <C-x><C-f> <C-o>:e ./
+noremap <C-x><C-s> :w<CR>
+inoremap <C-x><C-s> <C-o>:w<CR>
+noremap <C-x><C-c> :confirm q<CR>
+inoremap <C-x><C-c> <C-o>:confirm q<CR>
 " Workaround for C-x C-c not working
-noremap <C-x><C-z> <Esc>:confirm q<CR>a
-inoremap <C-x><C-z> <Esc>:confirm q<CR>a
+noremap <C-x><C-z> :confirm q<CR>
+inoremap <C-x><C-z> <C-o>:confirm q<CR>
 
 " Emacs-like navigation/selection
 inoremap <C-a> <Home>
 inoremap <C-e> <End>
-inoremap <C-u> <Esc>d0xi
-inoremap <C-k> <Right><Esc>d$a
-inoremap <C-y> <Esc>pa
+inoremap <C-k> <Right><C-o>d$
+inoremap <C-y> <C-o>p
+inoremap <C-s> <C-o>/
+
 
 noremap <C-a> <Home>
 noremap <C-e> <End>
 
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
+cnoremap <C-g> <C-c>
 
 nnoremap <C-a> <Home>
 nnoremap <C-e> <End>
@@ -161,13 +182,14 @@ nnoremap <C-u> d0
 nnoremap <C-k> D
 nnoremap <C-y> P<Right>
 
-noremap <CS-f> 
+"inoremap <C-f> <C-o>:grep . 
+
 
 ""------------
 "" 'Leader' key
 
 "enable an indicator when <leader> is pressed
-set showcmd 
+set showcmd
 let mapleader = ","
 
 map <leader><leader> :ls<CR>:b<Space>
@@ -185,8 +207,7 @@ if has ('autocmd') " Remain compatible with earlier versions
 
 " source $MYVIMRC when modified
  augroup vimrc     " Source vim configuration upon save
-    autocmd! BufWritePost $MYVIMRC source % | echom "Reloaded " . $MYVIMRC | redraw
-"    autocmd! BufWritePost $MYGVIMRC if has('gui_running') | so % | echom "Reloaded " . $MYGVIMRC | endif | redraw
+   autocmd! BufWritePost $MYVIMRC source % | echom "Reloaded ".$MYVIMRC | redraw
   augroup END
 
 endif " has autocmd
@@ -194,14 +215,15 @@ endif " has autocmd
 "**************************************************************
 " Plugins
 "**************************************************************
+packloadall " load packaged plugins, so we can check for them
 
+if exists(":CtrlP")
+  noremap  <C-x>f :CtrlP<cr>
+  noremap  <C-x>b :CtrlPBuffer<cr>
+  noremap  <C-p>  :CtrlPMixed<cr>
+  inoremap <C-x>f <C-o>:CtrlP<cr>
+  inoremap <C-x>b <C-o>:CtrlPBuffer<cr>
+  inoremap <C-p>  <C-o>:CtrlPMixed<cr>
+endif
 
-
-" Install vim-plug if not found
-"if empty(glob($HOME.'/.vim/autoload/plug.vim'))
-"  silent !curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs
-"    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-"endif
-
-
-
+" vim: set expandtab ts=2
