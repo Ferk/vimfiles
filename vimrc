@@ -70,14 +70,35 @@ set hidden
 colorscheme evening
 syntax on
 set ruler
-set number
+"set number
 
 " Highlight cursor line, color changes on Insert mode
 set cursorline
 autocmd InsertEnter  * highlight CursorLine   ctermbg=black guibg=#082830
 autocmd InsertEnter  * highlight CursorLineNR ctermbg=black guibg=#207878
-autocmd InsertLeave  * highlight CursorLine   ctermbg=black guibg=#283028
+autocmd InsertLeave  * highlight CursorLine   ctermbg=black guibg=#404040
 autocmd InsertLeave  * highlight CursorLineNR ctermbg=black guibg=#585858
+
+if &term =~ "xterm\\|rxvt"
+  " use a cyan cursor in insert mode
+  let &t_SI = "\<Esc>]12;cyan\x7"
+  " use a yellow cursor otherwise
+  let &t_EI = "\<Esc>]12;yellow\x7"
+  silent !echo -ne "\033]12;yellow\007"
+  " reset cursor when vim exits
+  autocmd VimLeave * silent !echo -ne "\033]112\007"
+
+  " solid underscore
+  let &t_SI .= "\<Esc>[4 q"
+  " solid block
+  let &t_EI .= "\<Esc>[2 q"
+  " 1 or 0 -> blinking block
+  " 3 -> blinking underscore
+  " Recent versions of xterm (282 or above) also support
+  " 5 -> blinking vertical bar
+  " 6 -> solid vertical bar
+endif
+
 
 " Highlight trailing whitespaces; eg:                          
 highlight ExtraWhitespace ctermbg=darkgrey guibg=#282828
@@ -147,7 +168,7 @@ noremap <C-u> u
 inoremap <C-x> <C-o>"*yx
 inoremap <C-c> <C-o>"*y
 inoremap <C-v> <C-o>"*p
-inoremap <C-u> <C-o>u
+inoremap <C-z> <C-o>u
 
 
 " Emacs-like chords
@@ -160,14 +181,15 @@ inoremap <C-x><C-c> <C-o>:confirm q<CR>
 " Workaround for C-x C-c not working
 noremap <C-x><C-z> :confirm q<CR>
 inoremap <C-x><C-z> <C-o>:confirm q<CR>
+noremap <C-x>h ggVG
+inoremap <C-x>h <ESC>ggVGi
 
 " Emacs-like navigation/selection
 inoremap <C-a> <Home>
 inoremap <C-e> <End>
-inoremap <C-k> <Right><C-o>d$
+inoremap <C-k> <C-o>c$
 inoremap <C-y> <C-o>p
 inoremap <C-s> <C-o>/
-
 
 noremap <C-a> <Home>
 noremap <C-e> <End>
@@ -182,7 +204,13 @@ nnoremap <C-u> d0
 nnoremap <C-k> D
 nnoremap <C-y> P<Right>
 
+
 "inoremap <C-f> <C-o>:grep . 
+
+" Other
+noremap <F10> :set invnumber<cr>
+inoremap <F10> <C-o>:set invnumber<cr>
+
 
 
 ""------------
@@ -196,8 +224,6 @@ map <leader><leader> :ls<CR>:b<Space>
 map <leader>n :bnext<cr>
 map <leader>p :bprevious<cr>
 map <leader>d :bdelete<cr>
-
-
 
 "**************************************************************
 " Auto Commands
