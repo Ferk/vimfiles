@@ -36,6 +36,8 @@ set whichwrap+=[,]  " left/right arrows wrap lines when in insert mode
 
 set keymodel=startsel,stopsel " shift+arrow selection
 
+set clipboard=unnamedplus " use system clipboard
+
 "***************************************************************
 "" File loading / saving
 "***************************************************************
