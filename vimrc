@@ -163,13 +163,13 @@ set showmode! "don't show mode on bottom line, already on status line
 "***************************************************************
 
 " Cut-Copy-Paste
-noremap <C-x> "*d
-noremap <C-c> "*y
-noremap <C-v> "*p
+noremap <C-x> "*y+d
+noremap <C-c> "*y+y
+noremap <C-v> "+p
 noremap <C-u> u
-inoremap <C-x> <C-o>"*yx
-inoremap <C-c> <C-o>"*y
-inoremap <C-v> <C-o>"*p
+inoremap <C-x> <C-o>"*y+yx
+inoremap <C-c> <C-o>"*y+y
+inoremap <C-v> <C-o>"+p
 inoremap <C-z> <C-o>u
 
 
